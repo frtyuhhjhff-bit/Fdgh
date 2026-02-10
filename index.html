@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <title>STRAVEX PANEL</title>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <style>
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -18,7 +15,8 @@ color:#00ff66;
 overflow:auto;
 }
 
-/* VIDEO BACKGROUND */
+/* video */
+
 video{
 position:fixed;
 top:0;
@@ -26,8 +24,21 @@ left:0;
 width:100%;
 height:100%;
 object-fit:cover;
+z-index:-3;
+}
+
+/* matrix */
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
 z-index:-2;
 }
+
+/* overlay */
 
 .overlay{
 position:fixed;
@@ -36,6 +47,8 @@ height:100%;
 background:rgba(0,0,0,.6);
 z-index:-1;
 }
+
+/* glow text */
 
 @keyframes softGlow{
 0%{text-shadow:0 0 8px #00ff66;}
@@ -46,6 +59,8 @@ z-index:-1;
 header p{
 animation:softGlow 3s infinite;
 }
+
+/* layout */
 
 header{
 text-align:center;
@@ -70,6 +85,7 @@ background:black;
 color:#00ff66;
 border:1px solid #00ff66;
 padding:10px;
+cursor:pointer;
 }
 
 .post{
@@ -77,6 +93,8 @@ border:1px solid #00ff66;
 margin-top:20px;
 padding:10px;
 }
+
+.post img{width:100%;margin-top:10px;}
 
 .links{text-align:center;margin:20px;}
 
@@ -94,26 +112,33 @@ text-decoration:none;
 
 <body>
 
-<!-- VIDEO -->
-<video autoplay muted loop playsinline>
+<video id="bgVideo" autoplay loop playsinline>
 <source src="bg.mp4" type="video/mp4">
 </video>
 
+<canvas id="matrix"></canvas>
 <div class="overlay"></div>
 
 <header>
-<p style="font-size:26px;line-height:2;">
+
+<p style="font-size:26px;line-height:2">
+
 مرحبا بكم نعم انها بدايتنا وليست نهايتنا انتظرونا  
 🔥 STRAVEX — شعارنا غذبهم لا ترحمهم 🔥
-الاستفسار تواصل
+الاستفسار تواصل  
+
 </p>
-<marquee>STRAVEX ⚡ Bots ⚡ Scripts ⚡ Telegram ⚡ YouTube</marquee>
+
+<marquee>STRAVEX_YT ⚡ Telegram ⚡ YouTube ⚡ Bots ⚡ Scripts</marquee>
+
 </header>
 
 <div class="panel">
 
 <input id="title" placeholder="عنوان المنشور">
 <textarea id="text" placeholder="اكتب منشورك"></textarea>
+<input type="file" id="img">
+
 <button onclick="post()">نشر</button>
 
 <div id="posts"></div>
@@ -121,49 +146,75 @@ text-decoration:none;
 </div>
 
 <div class="links">
-<a href="https://t.me/stravex_oficiel">Telegram STRAVEX</a>
-<a href="https://t.me/semoff90">مساعد المطور</a>
+<a href="https://t.me/stravex_oficiel">Telegram</a>
 <a href="https://youtube.com/@stravex2025">YouTube</a>
 </div>
 
 <script>
 
-/* 🔴 ضع بيانات Firebase هنا */
+/* matrix */
 
-const firebaseConfig={
-apiKey:"PUT",
-authDomain:"PUT",
-databaseURL:"PUT",
-projectId:"PUT",
-storageBucket:"PUT",
-messagingSenderId:"PUT",
-appId:"PUT"
-};
+const c=document.getElementById("matrix");
+const ctx=c.getContext("2d");
 
-firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
+c.width=window.innerWidth;
+c.height=window.innerHeight;
 
-/* POST */
+const chars="STRAVEX012345";
+const arr=chars.split("");
+const size=16;
+const cols=c.width/size;
+const drops=[];
+
+for(let i=0;i<cols;i++)drops[i]=1;
+
+function draw(){
+ctx.fillStyle="rgba(0,0,0,.05)";
+ctx.fillRect(0,0,c.width,c.height);
+ctx.fillStyle="#00ff66";
+ctx.font=size+"px monospace";
+
+for(let i=0;i<drops.length;i++){
+let t=arr[Math.floor(Math.random()*arr.length)];
+ctx.fillText(t,i*size,drops[i]*size);
+if(drops[i]*size>c.height && Math.random()>0.975)drops[i]=0;
+drops[i]++;
+}
+}
+
+setInterval(draw,33);
+
+/* posts */
 
 function post(){
 let t=title.value;
 let txt=text.value;
+let img=document.getElementById("img").files[0];
 if(!t||!txt)return;
 
-db.ref("posts").push({title:t,text:txt});
+let r=new FileReader();
+r.onload=()=>{
+posts.innerHTML+=`
+<div class="post">
+<h3>${t}</h3>
+<p>${txt}</p>
+<img src="${r.result}">
+</div>`;
+};
+
+if(img)r.readAsDataURL(img);
 title.value="";
 text.value="";
 }
 
-/* LOAD POSTS */
+/* enable sound on first touch */
 
-db.ref("posts").on("value",s=>{
-posts.innerHTML="";
-s.forEach(e=>{
-let d=e.val();
-posts.innerHTML+=`<div class="post"><h3>${d.title}</h3><p>${d.text}</p></div>`;
-});
-});
+document.body.addEventListener("click",()=>{
+let v=document.getElementById("bgVideo");
+v.muted=false;
+v.volume=1;
+v.play();
+},{once:true});
 
 </script>
 
