@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>STRAVEX PANEL</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:monospace;
+background:black;
+color:#00ff66;
+overflow:auto;
+}
+
+/* VIDEO BACKGROUND */
+video{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+object-fit:cover;
+z-index:-2;
+}
+
+.overlay{
+position:fixed;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.6);
+z-index:-1;
+}
+
+@keyframes softGlow{
+0%{text-shadow:0 0 8px #00ff66;}
+50%{text-shadow:0 0 14px #00ff66;}
+100%{text-shadow:0 0 8px #00ff66;}
+}
+
+header p{
+animation:softGlow 3s infinite;
+}
+
+header{
+text-align:center;
+padding:20px;
+border-bottom:1px solid #00ff66;
+}
+
+.panel{padding:20px;}
+
+input,textarea{
+width:100%;
+background:black;
+border:1px solid #00ff66;
+color:#00ff66;
+padding:10px;
+margin-top:10px;
+}
+
+button{
+margin-top:10px;
+background:black;
+color:#00ff66;
+border:1px solid #00ff66;
+padding:10px;
+}
+
+.post{
+border:1px solid #00ff66;
+margin-top:20px;
+padding:10px;
+}
+
+.links{text-align:center;margin:20px;}
+
+a{
+color:#00ff66;
+border:1px solid #00ff66;
+padding:10px;
+margin:5px;
+display:inline-block;
+text-decoration:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- VIDEO -->
+<video autoplay muted loop playsinline>
+<source src="bg.mp4" type="video/mp4">
+</video>
+
+<div class="overlay"></div>
+
+<header>
+<p style="font-size:26px;line-height:2;">
+مرحبا بكم نعم انها بدايتنا وليست نهايتنا انتظرونا  
+🔥 STRAVEX — شعارنا غذبهم لا ترحمهم 🔥
+الاستفسار تواصل
+</p>
+<marquee>STRAVEX ⚡ Bots ⚡ Scripts ⚡ Telegram ⚡ YouTube</marquee>
+</header>
+
+<div class="panel">
+
+<input id="title" placeholder="عنوان المنشور">
+<textarea id="text" placeholder="اكتب منشورك"></textarea>
+<button onclick="post()">نشر</button>
+
+<div id="posts"></div>
+
+</div>
+
+<div class="links">
+<a href="https://t.me/stravex_oficiel">Telegram STRAVEX</a>
+<a href="https://t.me/semoff90">مساعد المطور</a>
+<a href="https://youtube.com/@stravex2025">YouTube</a>
+</div>
+
+<script>
+
+/* 🔴 ضع بيانات Firebase هنا */
+
+const firebaseConfig={
+apiKey:"PUT",
+authDomain:"PUT",
+databaseURL:"PUT",
+projectId:"PUT",
+storageBucket:"PUT",
+messagingSenderId:"PUT",
+appId:"PUT"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+
+/* POST */
+
+function post(){
+let t=title.value;
+let txt=text.value;
+if(!t||!txt)return;
+
+db.ref("posts").push({title:t,text:txt});
+title.value="";
+text.value="";
+}
+
+/* LOAD POSTS */
+
+db.ref("posts").on("value",s=>{
+posts.innerHTML="";
+s.forEach(e=>{
+let d=e.val();
+posts.innerHTML+=`<div class="post"><h3>${d.title}</h3><p>${d.text}</p></div>`;
+});
+});
+
+</script>
+
+</body>
+</html>
